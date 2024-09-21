@@ -1,0 +1,54 @@
+<h1>{{title}} <span class="badge"  [ngClass]="getBackgroundColor()">{{getTodoCount()}}</span></h1>
+
+
+<table class="table table-striped table-hover" *ngIf="!selected">
+  <thead class="table-dark">
+    <tr>
+      <th>Task</th>
+      <th>Mark</th>
+      <th>Completed</th>
+      <th>Delete</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr [ngClass]=" todo.completed ? 'complete' : ''  " *ngFor="let todo of todos | incomplete:showComplete">
+      <td (click)="displayTodo(todo)">{{todo.task}}</td>
+      <td><input type="checkbox" (change)="updateTodo(todo)" [(ngModel)]="todo.completed"></td>
+      <td>{{todo.completed}}</td>
+      <td><button class="btn btn-danger" (click)="deleteTodo(todo.id)">X</button></td>
+    </tr>
+  </tbody>
+</table>
+<form *ngIf="!selected">
+  <div class="input-group">
+    <input class="form-control" type="text" name="task" [(ngModel)]="newTodo.task">
+    <button class="btn btn-primary" (click)="addTodo(newTodo)">Add Todo</button>
+  </div>
+</form>
+<label>Show All?</label>&nbsp;
+<input type="checkbox" name="showComplete" [(ngModel)]="showComplete" >
+
+<div *ngIf="selected && !editTodo">
+  <p>{{selected.id}}</p>
+  <p>{{selected.task}}</p>
+  <p>{{selected.description}}</p>
+  <p>{{selected.completed ? "Completed" : "Incomplete"}}</p>
+  <button class="btn btn-danger" (click)="displayTable()">Back</button>
+  <button class="btn btn-success" (click)="setEditTodo()">Edit</button>
+</div>
+
+<form *ngIf="selected && editTodo">
+  <div class="form-group">
+    <label for="task" class="form-label">Task</label>
+    <input type="text" name="task" placeholder="task" [(ngModel)]="editTodo.task">
+  </div>
+  <div class="form-group">
+    <label for="description" class="form-label">Description</label>
+    <input type="text" name="description"  placeholder="description" [(ngModel)]="editTodo.description"><br>
+  </div >
+  <div class="form-check">
+    Complete? <input type="checkbox" name="completed"  [(ngModel)]="editTodo.completed"><br>
+  </div>
+  <button class="btn btn-danger" (click)="editTodo = null">Cancel</button>
+  <button class="btn btn-success" (click)="updateTodo(editTodo)">Save</button>
+</form>
