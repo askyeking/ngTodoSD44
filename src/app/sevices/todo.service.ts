@@ -30,6 +30,19 @@ export class TodoService {
 
   }
 
+  show(todoId: number) : Observable<Todo> {
+    return this.http.get<Todo>(`${this.url}/${todoId}`).pipe(
+      catchError(
+        (err: any) => {
+          console.log(err);
+          return throwError(
+            () => { return new Error("TodoService.show(): error retrieving todo with an id of " + todoId + ": "  + err); }
+          );
+        }
+      )
+    );
+  }
+
   create(newTodo:Todo) : Observable<Todo>{
     return this.http.post<Todo>(this.url,newTodo).pipe(
       catchError(

@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { Todo } from '../../models/todo';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-todo-list',
@@ -23,10 +24,43 @@ export class TodoListComponent implements OnInit {
 
   showComplete: boolean = false;
 
-  constructor(private todoService: TodoService, private incompletePipe: IncompletePipe){}
+  constructor(
+    private todoService: TodoService,
+    private incompletePipe: IncompletePipe,
+    private router: Router,
+    private activatedRoute: ActivatedRoute
+    ){}
 
   ngOnInit() : void {
     this.loadTodos();
+    this.activatedRoute.paramMap.subscribe(
+      {
+        next: (params) => {
+          let todoIdStr = params.get("todoId");
+          if(todoIdStr) { //make sure parameter was present
+            let todoId = parseInt(todoIdStr);
+            if(isNaN(todoId)){ //make sure parameter was a valid number
+              this.router.navigateByUrl('notFound');
+            } else {
+              this.findTodoById(todoId);
+            }
+          }
+        }
+      }
+    );
+  }
+
+  findTodoById(todoId: number) : void {
+    this.todoService.show(todoId).subscribe({
+      next: (todo) => {
+        this.selected = todo;
+      },
+      error: (err) => {
+        this.router.navigateByUrl('notFound');
+        console.error(err);
+        console.error("error in subscribe for finding todo by id");
+      }
+    });
   }
 
   loadTodos() : void {
@@ -94,7 +128,6 @@ export class TodoListComponent implements OnInit {
       console.error("error in subscribe");
     }
    });
-
   }
 
   deleteTodo(id: number) : void{
